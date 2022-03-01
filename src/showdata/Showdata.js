@@ -14,7 +14,9 @@ export default class Showdata extends Component{
             firstname:"",
             lastname:"",
             email:"",
-            timsetp:""
+            favgametype:"",
+            timestp:"",
+            sapdata2:[]
         }
         this.handleChang = this.handleChang.bind(this);
         this.handleClicked = this.handleClicked.bind(this);
@@ -30,6 +32,12 @@ export default class Showdata extends Component{
         fetch('/data')
             .then(res => res.json())
             .then(list => this.setState({ list }))
+        console.log("after fetch data");
+
+        console.log("before fetch data");
+        fetch('/favgametype')
+            .then(res => res.json())
+            .then(list => this.setState({ sapdata2:list }))
         console.log("after fetch data");
     }
 
@@ -60,32 +68,26 @@ export default class Showdata extends Component{
             firstname:user.FName,
             lastname:user.LName,
             email:user.Email,
+            favgametype:user.FavGameType,
             timestp:user.TimeStamp
         })
     }
+
     handleChang = (e) => {
         this.setState({
             [e.target.id]: e.target.value
         });
-        let url = `https://localhost:3000/data`;
-        let data = {
-            idkey:this.state.ID,
-            firstname:this.state.FName,
-            lastname:this.state.LName,
-            email:this.state.Email,
-            timestp:this.state.TimeStamp
-        }
-        axios.put(url,data)
     }
 
     handleClicked(){
         let url = `https://localhost:3000/data`;
         let data = {
-            idkey:this.state.ID,
-            firstname:this.state.FName,
-            lastname:this.state.LName,
-            email:this.state.Email,
-            timestp:this.state.TimeStamp
+            idkey:this.state.idkey,
+            firstname:this.state.firstname,
+            lastname:this.state.lastname,
+            email:this.state.email,
+            games:this.state.favgametype,
+            timestp:this.state.timestp
         }
         axios.put(url,data)
         this.setState({
@@ -93,14 +95,14 @@ export default class Showdata extends Component{
             firstname:"",
             lastname:"",
             email:"",
+            favgametype:"",
             timestp:""
         });
-	this.closeModal();
+	    this.closeModal();
         setTimeout(()=>{this.componentDidMount()},1)
     }
     render() {
         let {list} = this.state;
-
         return (
             <div className="App">
                 <h2 className="my-4">Users Information<br/></h2>
@@ -113,8 +115,9 @@ export default class Showdata extends Component{
                                 <th>First Name</th>
                                 <th>Last Name</th>
                                 <th>Email</th>
+                                <th>Favourite Games Type</th>
                                 <th>Registed Time</th>
-                                </tr>
+                            </tr>
                         </thead>
                         <tbody>
                                 {list.map((user) =>{
@@ -124,6 +127,7 @@ export default class Showdata extends Component{
                                             <td>{user.FName}</td>
                                             <td>{user.LName}</td>
                                             <td>{user.Email}</td>
+                                            <td>{user.Type}</td>
                                             <td>{user.TimeStamp}</td>
                                             <td><button type="button" class="btn btn-warning" onClick={()=>this.call(user)}>Edit</button></td>
                                             <td><button type="button" class="btn btn-danger"  onClick={()=>this.onDelete(user)}>Delete</button></td>
@@ -136,15 +140,24 @@ export default class Showdata extends Component{
                                                 >
                                                     <form className="container" id='form'>
                                                         <div className="form-group">
-                                                            <h3><label htmlFor="id">ID: {this.state.ID}<br/></label></h3>
+                                                            <h3><label htmlFor="idkey">ID: {this.state.idkey}<br/></label></h3>
                                                         </div>
                                                         <div className="form-group">
                                                             <label>Firstname:</label>
-                                                            <input type="text" className="form-control" id="firstname" onChange={this.handleChang} value={this.state.FName}/>
+                                                            <input type="text" className="form-control" id="firstname" onChange={this.handleChang} value={this.state.firstname}/>
                                                         </div>
                                                         <div className="form-group">
                                                             <label>Lastname:</label>
-                                                            <input type="text" className="form-control" id="lastname" onChange={this.handleChang} value={this.state.LName}/>
+                                                            <input type="text" className="form-control" id="lastname" onChange={this.handleChang} value={this.state.lastname}/>
+                                                        </div>
+                                                        <div className="form-group">
+                                                            <select className="form-control" id="favgametype" onChange={this.handleChang} value={this.state.favgametype} required>
+                                                                <option>Select Games type</option>
+                                                                <option value="">{this.state.favgametype}</option>
+                                                                {this.state.sapdata2.map(user => {
+                                                                    return <option value={user.ID_Game}>{user.Type}</option>
+                                                                })}
+                                                            </select>
                                                         </div>
                                                         <button type="button" className="btn btn-primary" onClick={this.handleClicked}>Submit</button>
                                                     </form>

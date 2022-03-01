@@ -31,7 +31,18 @@ const db = mysql.createConnection({
 // show data
 app.get('/data', function(req,res){
     console.log("Hello in /data ");
-    let sql = 'SELECT * FROM users;';
+    let sql = 'SELECT u.*, TPG.Type FROM users u, typegames TPG WHERE u.FavGameType = TPG.ID_Game;';
+    db.query(sql, (err, result)=>{
+        if(err) throw err;
+        console.log(result);
+        res.json(result);
+    });
+    console.log("after query");
+});
+
+app.get('/favgametype', function(req,res){
+    console.log("Hello in /favgametype ");
+    let sql = 'SELECT * FROM typegames;';
     db.query(sql, (err, result)=>{
         if(err) throw err;
         console.log(result);
@@ -51,8 +62,8 @@ app.put('/delete', function(req, res) {
 
 //edit
 app.put('/data', function(req, res) {
-    var sql = 'UPDATE users SET FName= ? , LName = ? WHERE ID = ?';
-    db.query(sql,[req.body.firstname,req.body.lastname,req.body.idkey],function (error, results) {
+    var sql = 'UPDATE users SET FName= ? , LName = ? , FavGameType = ? WHERE ID = ?';
+    db.query(sql,[req.body.firstname,req.body.lastname,req.body.games,req.body.idkey],function (error, results) {
         if(error) throw error;
         res.send(JSON.stringify(results));
     });
@@ -65,8 +76,8 @@ app.post('/data', function(req, res){
         ID:req.body.idkey,
         FName:req.body.firstname,
         LName:req.body.lastname,
-        Email:req.body.email
-
+        Email:req.body.email,
+        FavGameType:req.body.games
     };
     let sql = 'INSERT INTO users SET ?';
     db.query(sql, data, (err, result)=>{
